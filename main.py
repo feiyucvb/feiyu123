@@ -1,3 +1,4 @@
+import http.client
 import os
 import re
 import json
@@ -7,6 +8,7 @@ from bs4 import BeautifulSoup
 
 USERNAME = os.environ["1984lixian2006@gmail.com"]
 PASSWORD = os.environ["lx217000"]
+# TOKEN 从 https://push.ggt1024.com 登录获取
 TOKEN = ""
 PROXIES = {
     "http": "http://127.0.0.1:10808",
@@ -119,7 +121,13 @@ def check(sess_id: str, session: requests.session):
 
 
 def notify_user(token: str, msg: str):
-    rs = requests.post(url="https://sre24.com/api/v1/push", json=dict(token=token, msg=msg)).json()
+    port = 443
+    server = "push.ggt1024.com"
+    conn = http.client.HTTPSConnection(host=server, port=port)
+    rqbody = json.dumps(dict(token=token, msg=msg))
+    conn.request(method="POST", url="/to/", body=rqbody)
+    resp = conn.getresponse()
+    rs = json.loads(resp.read().decode("utf8"))
     assert int(rs["code"] / 100) == 2, rs
 
 
